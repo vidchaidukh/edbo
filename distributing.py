@@ -31,16 +31,10 @@ def distribute(offers):
                         req[2] = 'Рекомендовано на бюджет'
                         counts[offer_ind] -= 1
                     else:
-                        req[2] = 'Резерв'
+                        req[2] = 'Рекомендовано'
                     cond_all_checked = False
                     break
-                elif req[2] == 'Резерв':
-                    if counts[offer_ind] > 0: 
-                        req_matrix,  counts = deactivate_req(req_matrix, req[1], req[3], counts)
-                        req[2] = 'Рекомендовано на бюджет'
-                        counts[offer_ind] -= 1
-                    else:
-                        req[2] = 'Рекомендовано'
+
         print(counts)
         write_req_matrix(req_matrix)
         cond = check_distrubution(req_matrix, counts)
@@ -80,11 +74,14 @@ def deactivate_req(req_matrix, pib, prior, counts):
         for ind, req in reversed(list(enumerate(offer))):
             if req[1] == pib and int(req[3]) > int(prior):
                 if req[2] == 'Рекомендовано на бюджет':
+                    cond_new_approved = False
                     for inner_req in offer[ind:]:
                         if inner_req[2] not in ['Рекомендовано на бюджет', 'Зараховано за вищим пріоритетом']:
-                            req[2] = 'Резерв'
-                            counts[offer_ind] += 1
+                            inner_req[2] = 'Рекомендовано на бюджет'
+                            cond_new_approved = True
                             break
+                    if not cond_new_approved:
+                            counts[offer_ind] += 1
                 req[2] = 'Зараховано за вищим пріоритетом'
                 offer.append(offer.pop(ind))
     return req_matrix, counts
@@ -96,7 +93,7 @@ def check_distrubution(req_matrix, avaliable_counts):
             if req[2] == 'допущено' or req[2] == 'зареєстровано':
                 cond = True
                 print("ДОП", req[1])
-            elif req[2] == 'Резерв':
+            elif req[2] == 'Рекомендовано' and avaliable_counts[ind] > 0:
                 cond = True
                 print("РЕК", req[1])
 
