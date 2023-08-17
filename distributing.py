@@ -1,4 +1,5 @@
 import numpy as np
+import excel_writing
 
 offers = (
     ('121 ІПЗ КІС ОНП', 'https://vstup.edbo.gov.ua/offer/1139029/', 14),
@@ -36,17 +37,15 @@ def distribute(offers):
                     break
 
         print(counts)
-        write_req_matrix(req_matrix)
         cond = check_distrubution(req_matrix, counts)
-        _ = input("stoped")
+    write_req_matrix(req_matrix)
+    excel_writing.excel_write(req_matrix, offers, counts)
 
-                        
 
 def get_req_matrix(files):
     matrix = []
     for file in files:
         requests = filtrate(np.load('npy/'+ file +'.npy'))
-        print(requests)
         f = open(file + '.csv', "w", encoding="utf-8")
         f.write(str(requests))
         f.close()
@@ -70,7 +69,7 @@ def filtrate(requests):
 
 def deactivate_req(req_matrix, pib, prior, counts):
     for offer_ind, offer in list(enumerate(req_matrix)):
-        print("OOOOOFFER" + str(offer[1]))
+        print("IDD", offer_ind)
         for ind, req in reversed(list(enumerate(offer))):
             if req[1] == pib and int(req[3]) > int(prior):
                 if req[2] == 'Рекомендовано на бюджет':
@@ -92,10 +91,8 @@ def check_distrubution(req_matrix, avaliable_counts):
         for req in offer:
             if req[2] == 'допущено' or req[2] == 'зареєстровано':
                 cond = True
-                print("ДОП", req[1])
             elif req[2] == 'Рекомендовано' and avaliable_counts[ind] > 0:
                 cond = True
-                print("РЕК", req[1])
 
     return cond
 
